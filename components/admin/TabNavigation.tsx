@@ -2,7 +2,7 @@
 
 import React from 'react';
 
-export type TabType = 'dashboard' | 'scores' | 'categories' | 'sections' | 'personal' | 'calendar' | 'logs' | 'requests';
+export type TabType = 'dashboard' | 'sections' | 'personal' | 'logs' | 'requests';
 
 interface TabNavigationProps {
   activeTab: TabType | null;
@@ -50,14 +50,7 @@ export default function TabNavigation({ activeTab, setActiveTab, isMaster }: Omi
           {isShowExpanded && <span className="sidebar-text">Solicitudes</span>}
         </button>
       )}
-      <button 
-        onClick={() => setActiveTab('scores')} 
-        className={activeTab === 'scores' ? 'active' : ''}
-        title="Partituras"
-      >
-        <span className="sidebar-icon">🎼</span>
-        {isShowExpanded && <span className="sidebar-text">Partituras / Documentos</span>}
-      </button>
+
 
       {isMaster && (
         <button 
@@ -69,22 +62,7 @@ export default function TabNavigation({ activeTab, setActiveTab, isMaster }: Omi
           {isShowExpanded && <span className="sidebar-text">Estructuras y Catálogos</span>}
         </button>
       )}
-      <button 
-        onClick={() => setActiveTab('categories')} 
-        className={activeTab === 'categories' ? 'active' : ''}
-        title="Programas"
-      >
-        <span className="sidebar-icon">📂</span>
-        {isShowExpanded && <span className="sidebar-text">Programas / Conciertos</span>}
-      </button>
-      <button 
-        onClick={() => setActiveTab('calendar')} 
-        className={activeTab === 'calendar' ? 'active' : ''}
-        title="Agenda"
-      >
-        <span className="sidebar-icon">📅</span>
-        {isShowExpanded && <span className="sidebar-text">Agenda</span>}
-      </button>
+
       {isMaster && (
         <button 
           onClick={() => setActiveTab('logs')} 

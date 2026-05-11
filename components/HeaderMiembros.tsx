@@ -83,7 +83,17 @@ export default function HeaderMiembros() {
             </li>
           )}
           
-          {isAdmin && (
+          {(isArchiver || isMaster) && (
+            <li>
+              <Link href="/miembros/archivero"
+                className={`miembros-link highlight-admin ${pathname.startsWith('/miembros/archivero') ? 'active' : ''}`}
+                style={{ color: '#a5f3fc' }}>
+                Archivo
+              </Link>
+            </li>
+          )}
+
+          {isMaster && (
             <li>
               <Link href="/miembros/gestion"
                 className={`miembros-link highlight-admin ${pathname.startsWith('/miembros/gestion') ? 'active' : ''}`}>
@@ -192,7 +202,12 @@ export default function HeaderMiembros() {
                 {label}
               </Link>
             ))}
-            {isAdmin && (
+            {(isArchiver || isMaster) && (
+              <Link href="/miembros/archivero" className="mobile-drawer-link" style={{ color: '#a5f3fc' }} onClick={() => setMobileOpen(false)}>
+                Archivo
+              </Link>
+            )}
+            {isMaster && (
               <>
                 <Link href="/miembros/gestion" className="mobile-drawer-link" style={{ color: 'var(--clr-gold)' }} onClick={() => setMobileOpen(false)}>
                   Panel de Gestión

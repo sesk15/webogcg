@@ -19,7 +19,7 @@ export default function CategoriesPanel({ categories, onRefresh }: CategoriesPan
   const createCategory = async () => {
     if (!newCategoryName.trim()) return;
     try {
-      const res = await fetch("/api/categories", {
+      const res = await fetch("/api/archivero/categories", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: newCategoryName, eventDate: newEventDate || null })
@@ -38,7 +38,7 @@ export default function CategoriesPanel({ categories, onRefresh }: CategoriesPan
   const deleteCategory = (id: number) => {
     confirmAction("¿Eliminar este programa y desvincular sus partituras?", async () => {
       try {
-        const res = await fetch(`/api/categories?id=${id}`, { method: "DELETE" });
+        const res = await fetch(`/api/archivero/categories/${id}`, { method: "DELETE" });
         if (res.ok) {
           showToast("Programa eliminado");
           onRefresh();
@@ -52,8 +52,8 @@ export default function CategoriesPanel({ categories, onRefresh }: CategoriesPan
   const updateCategory = async () => {
     if (!editingCategory) return;
     try {
-      const res = await fetch("/api/categories", {
-        method: "PUT",
+      const res = await fetch(`/api/archivero/categories/${editingCategory.id}`, {
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(editingCategory)
       });

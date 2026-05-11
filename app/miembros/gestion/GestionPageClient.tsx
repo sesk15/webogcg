@@ -17,7 +17,7 @@ import { useNotifications } from '@/components/ui/NotificationContext';
 import '@/css/miembros.css';
 
 export default function AdminOCGCPartituras() {
-  const { user, isLoading: isAuthLoading, isMaster, isArchiver } = useSupabaseAuth();
+  const { user, isLoading: isAuthLoading, isMaster } = useSupabaseAuth();
   const { showToast } = useNotifications();
   const router = useRouter();
   
@@ -79,35 +79,23 @@ export default function AdminOCGCPartituras() {
     if (!isAuthLoading) {
       if (!user) {
         router.push("/sign-in");
-      } else if (!isMaster && !isArchiver) {
+      } else if (!isMaster) {
         router.push("/miembros/tablon");
       } else {
-        const tab = activeTab || (isMaster ? "dashboard" : "scores");
+        const tab = activeTab || "dashboard";
         if (activeTab === null) setActiveTab(tab);
         
         const endpoints: Record<string, string> = {};
         
-        // Eager load metadata if Master (used in almost all panels)
-        if (isMaster) {
-          endpoints['agrupaciones'] = '/api/agrupaciones';
-          endpoints['secciones'] = '/api/secciones';
-          endpoints['papeles'] = '/api/papeles';
-          endpoints['roles'] = '/api/roles';
-        }
+        // Eager load metadata (used in almost all panels)
+        endpoints['agrupaciones'] = '/api/agrupaciones';
+        endpoints['secciones'] = '/api/secciones';
+        endpoints['papeles'] = '/api/papeles';
+        endpoints['roles'] = '/api/roles';
 
         if (tab === 'dashboard' && isMaster) {
           endpoints['scores'] = '/api/scores';
           endpoints['users'] = '/api/admin/users';
-        } else if (tab === 'scores') {
-          endpoints['scores'] = '/api/scores';
-          endpoints['categories'] = '/api/categories';
-          // Agrupaciones and roles already in master base
-          if (!isMaster) {
-            endpoints['agrupaciones'] = '/api/agrupaciones';
-            endpoints['roles'] = '/api/roles';
-          }
-        } else if (tab === 'categories' && isMaster) {
-          endpoints['categories'] = '/api/categories';
         } else if (tab === 'sections' && isMaster) {
           // Already in master base
         } else if (tab === 'personal' && isMaster) {
@@ -120,7 +108,7 @@ export default function AdminOCGCPartituras() {
         fetchEndpointsSafely(endpoints);
       }
     }
-  }, [isAuthLoading, user, isMaster, isArchiver, activeTab, router]);
+  }, [isAuthLoading, user, isMaster, activeTab, router]);
 
   if (isAuthLoading || !user) {
     return (
@@ -134,12 +122,9 @@ export default function AdminOCGCPartituras() {
   const getTabTitle = (tab: TabType | null) => {
     switch (tab) {
       case 'dashboard': return 'Dashboard';
-      case 'scores': return 'Partituras y Documentos';
-      case 'personal': return 'Usuarios';
-      case 'requests': return 'Solicitudes';
-      case 'categories': return 'Programas / Conciertos';
       case 'sections': return 'Estructuras y Catálogos';
-      case 'calendar': return 'Agenda';
+      case 'personal': return 'Gestión de Usuarios';
+      case 'requests': return 'Solicitudes de Ingreso';
       case 'logs': return 'Acciones del Sistema';
       default: return 'Gestión OCGC';
     }
@@ -180,7 +165,7 @@ export default function AdminOCGCPartituras() {
           </div>
           <div className="header-status-pill">
             <span className="pulse-dot"></span>
-            {isMaster ? 'Administrador Master' : 'Archivero'}
+            Administrador Master
           </div>
         </header>
 
@@ -188,33 +173,6 @@ export default function AdminOCGCPartituras() {
           {activeTab === 'dashboard' && isMaster && (
             <DashboardPanel members={members} scores={scores} />
           )}
-
-          {activeTab === 'scores' && (
-            <ScoresPanel 
-              scores={scores}
-              categories={categories}
-              agrupaciones={agrupaciones}
-              tagsDict={tagsDict}
-              predefinedTags={predefinedTags}
-              isMaster={isMaster}
-              isArchiver={isArchiver}
-              onRefresh={() => fetchEndpointsSafely({
-                scores: '/api/scores',
-                categories: '/api/categories',
-                agrupaciones: '/api/agrupaciones',
-                roles: '/api/roles'
-              }, true)}
-            />
-          )}
-
-          {activeTab === 'categories' && isMaster && (
-            <CategoriesPanel 
-              categories={categories} 
-              onRefresh={() => fetchEndpointsSafely({ categories: '/api/categories' }, true)} 
-            />
-          )}
-
-
 
           {activeTab === 'sections' && isMaster && (
             <SectionsPanel 

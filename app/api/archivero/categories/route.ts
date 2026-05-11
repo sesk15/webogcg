@@ -14,7 +14,7 @@ export async function POST(req: Request) {
   const user = await getSessionUser();
   if (!user) return new NextResponse("Unauthorized", { status: 401 });
 
-  if (!user.isMaster) return new NextResponse("Forbidden", { status: 403 });
+  if (!user.isMaster && !user.isArchiver) return new NextResponse("Forbidden", { status: 403 });
 
   const { name, eventDate } = await req.json();
 

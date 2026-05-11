@@ -1,13 +1,13 @@
 import { getSessionUser } from "@/lib/auth-utils";
 import { redirect } from "next/navigation";
-import GestionPageClient from "./GestionPageClient";
+import ArchiveroPageClient from "./ArchiveroPageClient";
 
 export default async function Page() {
   const user = await getSessionUser();
 
-  if (!user || !user.isMaster) {
+  if (!user || (!user.isMaster && !user.isArchiver)) {
     redirect("/miembros/tablon");
   }
 
-  return <GestionPageClient />;
+  return <ArchiveroPageClient />;
 }

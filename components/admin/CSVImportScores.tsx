@@ -110,7 +110,7 @@ export default function CSVImportScores({ categories, onImportSuccess }: { categ
           String(instrumentosRaw).split(',').forEach((i: string) => fd.append('roles', i.trim()));
         }
 
-        const res = await fetch('/api/scores/create', { method: 'POST', body: fd });
+        const res = await fetch('/api/archivero/scores/create', { method: 'POST', body: fd });
         if (res.ok) {
           successCount++;
         } else {

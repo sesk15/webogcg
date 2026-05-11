@@ -17,14 +17,14 @@ export default function CalendarPanel() {
 
   useEffect(() => {
     fetchEvents();
-    fetch('/api/categories')
+    fetch('/api/archivero/categories')
       .then(r => r.json())
       .then(data => setCategories(Array.isArray(data) ? data : []))
       .catch(console.error);
   }, []);
 
   const fetchEvents = () => {
-    fetch('/api/admin/events')
+    fetch('/api/archivero/events')
       .then(r => r.json())
       .then(data => setEvents(Array.isArray(data) ? data : []))
       .catch(console.error);
@@ -35,7 +35,7 @@ export default function CalendarPanel() {
     const fd = new FormData(e.currentTarget);
     const data = Object.fromEntries(fd.entries());
     try {
-      const res = await fetch('/api/admin/events', {
+      const res = await fetch('/api/archivero/events', {
         method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data)
       });
       if (res.ok) { fetchEvents(); (e.target as HTMLFormElement).reset(); }
@@ -46,7 +46,7 @@ export default function CalendarPanel() {
   const deleteEvent = (id: number) => {
     confirmAction("¿Seguro que quieres eliminar este evento?", async () => {
       try {
-        const res = await fetch(`/api/admin/events/${id}`, { method: 'DELETE' });
+        const res = await fetch(`/api/archivero/events/${id}`, { method: 'DELETE' });
         if (res.ok) {
           showToast("Evento eliminado");
           fetchEvents();
@@ -58,7 +58,7 @@ export default function CalendarPanel() {
   const updateEvent = async () => {
     if (!editingEvent?.title) return; setLoading(true);
     try {
-      const res = await fetch(`/api/admin/events/${editingEvent.id}`, {
+      const res = await fetch(`/api/archivero/events/${editingEvent.id}`, {
         method: 'PATCH', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(editingEvent)
       });
@@ -167,7 +167,7 @@ export default function CalendarPanel() {
     }
     if (rows.length === 0) { setImportStatus('⚠️ No se encontraron eventos válidos en el archivo.'); return; }
     try {
-      const res = await fetch('/api/admin/events', {
+      const res = await fetch('/api/archivero/events', {
         method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(rows)
       });
       if (res.ok) {

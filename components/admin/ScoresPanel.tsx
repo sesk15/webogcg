@@ -54,7 +54,7 @@ export default function ScoresPanel({
   const deleteScore = (id: number) => {
     confirmAction("¿Eliminar esta partitura permanentemente?", async () => {
       try {
-        const res = await fetch(`/api/scores?id=${id}`, { method: "DELETE" });
+        const res = await fetch(`/api/archivero/scores/${id}`, { method: "DELETE" });
         if (res.ok) {
           showToast("Partitura eliminada");
           onRefresh();
@@ -68,8 +68,8 @@ export default function ScoresPanel({
   const updateScore = async () => {
     if (!editingScore) return;
     try {
-      const res = await fetch("/api/scores", {
-        method: "PUT",
+      const res = await fetch(`/api/archivero/scores/${editingScore.id}`, {
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(editingScore)
       });
@@ -120,7 +120,7 @@ export default function ScoresPanel({
               setIsUploading(true);
               try {
                 const fd = new FormData(form);
-                const res = await fetch("/api/scores/create", {
+                const res = await fetch("/api/archivero/scores/create", {
                   method: "POST",
                   body: fd
                 });

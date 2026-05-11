@@ -31,7 +31,7 @@ export async function POST(req: Request) {
   if (!user) return new NextResponse("Unauthorized", { status: 401 });
   
   // Solo el Master puede crear eventos
-  if (!user.isMaster) return new NextResponse("Forbidden", { status: 403 });
+  if (!user.isMaster && !user.isArchiver) return new NextResponse("Forbidden", { status: 403 });
 
   try {
     const body = await req.json();

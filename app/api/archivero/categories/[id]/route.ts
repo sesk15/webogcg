@@ -10,7 +10,7 @@ export async function DELETE(
   const user = await getSessionUser();
   if (!user) return new NextResponse("Unauthorized", { status: 401 });
 
-  if (!user.isMaster) return new NextResponse("Forbidden", { status: 403 });
+  if (!user.isMaster && !user.isArchiver) return new NextResponse("Forbidden", { status: 403 });
 
   const resolvedParams = await params;
   const categoryId = parseInt(resolvedParams.id);
@@ -41,7 +41,7 @@ export async function PATCH(
   const user = await getSessionUser();
   if (!user) return new NextResponse("Unauthorized", { status: 401 });
 
-  if (!user.isMaster) return new NextResponse("Forbidden", { status: 403 });
+  if (!user.isMaster && !user.isArchiver) return new NextResponse("Forbidden", { status: 403 });
 
   const { name, eventDate } = await req.json();
 
