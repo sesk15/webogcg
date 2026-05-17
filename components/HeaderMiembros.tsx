@@ -26,14 +26,18 @@ export default function HeaderMiembros() {
   const handleExternalRedirect = async (e: React.MouseEvent) => {
     e.preventDefault();
     const externalUrl = process.env.NEXT_PUBLIC_EXTERNAL_SERVER_URL;
+    if (!externalUrl) return;
 
-    if (session?.access_token && session?.refresh_token) {
-      // WARNING: Tokens are passed in URL fragment. This is visible in browser history.
-      // TODO: Migrate to server-to-server token exchange flow.
-      const targetUrl = `${externalUrl}/callback#access_token=${session.access_token}&refresh_token=${session.refresh_token}`;
-      window.open(targetUrl, '_blank', 'noopener,noreferrer');
-    } else {
-      window.open(externalUrl, '_blank', 'noopener,noreferrer');
+    try {
+      const res = await fetch("/api/auth/exchange", { method: "POST" });
+      if (!res.ok) {
+        window.open(externalUrl, "_blank", "noopener,noreferrer");
+        return;
+      }
+      const { code } = await res.json();
+      window.open(`${externalUrl}/auth/callback?code=${code}`, "_blank", "noopener,noreferrer");
+    } catch {
+      window.open(externalUrl, "_blank", "noopener,noreferrer");
     }
   };
 

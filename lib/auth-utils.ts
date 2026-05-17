@@ -26,3 +26,25 @@ export async function getSessionUser() {
     return null;
   }
 }
+
+export async function getUserBySupabaseId(supabaseUserId: string) {
+  try {
+    return prisma.user.findUnique({
+      where: { supabaseUserId },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        surname: true,
+        supabaseUserId: true,
+        isMaster: true,
+        isArchiver: true,
+        isSeller: true,
+        isSectionLeader: true
+      }
+    });
+  } catch (error) {
+    console.error("Error in getUserBySupabaseId:", error);
+    return null;
+  }
+}
