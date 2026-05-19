@@ -584,7 +584,7 @@ export default function PersonalPanel({
             </div>
             
             <div className="modal-body" style={{ padding: '1.5rem 2.5rem', maxHeight: '75vh', overflowY: 'auto' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.2rem', marginBottom: '2rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.2rem', marginBottom: '2rem' }}>
                 <div className="admin-form-group-premium">
                   <label>Nombre de pila *</label>
                   <input type="text" placeholder="Ej: Juan" value={manualUser.firstName} onChange={e => setManualUser({...manualUser, firstName: e.target.value})} className="premium-input" />
@@ -672,7 +672,7 @@ export default function PersonalPanel({
                 <h3 style={{ fontSize: '0.95rem', fontWeight: 700, color: '#1e293b', marginBottom: '1.2rem' }}>Perfiles Artísticos (Si es músico)</h3>
                 
                 {manualUser.artisticProfiles.map((p, idx) => (
-                  <div key={idx} style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr 1.5fr auto', gap: '0.8rem', marginBottom: '0.8rem', alignItems: 'center' }}>
+                  <div key={idx} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '0.8rem', marginBottom: '0.8rem', alignItems: 'center' }}>
                     <select 
                       value={p.papel} 
                       onChange={e => {

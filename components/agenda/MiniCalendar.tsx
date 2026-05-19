@@ -72,7 +72,7 @@ export default function MiniCalendar({ events, year, month, onMonthChange }: Pro
               onMouseLeave={() => setHoveredDay(null)}
               style={{ textAlign: 'center', padding: '0.3rem 0.1rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3px', position: 'relative' }}
             >
-              <span style={{ width: 30, height: 30, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem', fontWeight: hasEvent ? 700 : 400, background: isToday ? '#1a2a4b' : hasEvent ? '#e8f4ff' : 'transparent', color: isToday ? '#fff' : hasEvent ? '#1a2a4b' : '#555', cursor: 'pointer', transition: '0.2s' }}>
+              <span style={{ width: 'clamp(24px, 8vw, 30px)', height: 'clamp(24px, 8vw, 30px)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem', fontWeight: hasEvent ? 700 : 400, background: isToday ? '#1a2a4b' : hasEvent ? '#e8f4ff' : 'transparent', color: isToday ? '#fff' : hasEvent ? '#1a2a4b' : '#555', cursor: 'pointer', transition: '0.2s' }}>
                 {day}
               </span>
               {dots.length > 0 && (

@@ -4,7 +4,7 @@ export default function NosotrosHero() {
   return (
     <section
       className="main-header"
-      style={{ height: '70vh', minHeight: 480 }}
+      style={{ height: 'clamp(400px, 70vh, 800px)', minHeight: '400px' }}
       aria-labelledby="nosotros-heading"
     >
       <div

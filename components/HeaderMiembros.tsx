@@ -145,7 +145,7 @@ export default function HeaderMiembros() {
               border: '1px solid rgba(255,255,255,0.12)',
               borderRadius: '14px',
               boxShadow: '0 24px 48px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.04)',
-              minWidth: '230px',
+              minWidth: '200px', maxWidth: '90vw',
               display: 'flex', flexDirection: 'column', overflow: 'hidden',
               zIndex: 4000,
               transformOrigin: 'top right',

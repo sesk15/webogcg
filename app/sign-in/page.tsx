@@ -191,7 +191,7 @@ function SignInContent() {
           <div style={{ flex: 1, height: '1px', backgroundColor: 'var(--clr-border)' }}></div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
           <button
             onClick={() => supabase.auth.signInWithOAuth({ 
               provider: 'google',

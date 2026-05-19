@@ -90,10 +90,10 @@ export default function AdminGuideModal({ activeTab, onClose }: { activeTab: str
       <div 
         style={{ 
           background: 'white', 
+          width: '90%',
           maxWidth: '550px', 
-          width: '100%', 
           borderRadius: '24px', 
-          padding: '2.5rem', 
+          padding: 'clamp(1rem, 4vw, 2.5rem)', 
           boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)', 
           position: 'relative',
           border: '1px solid #eef2f6',

@@ -44,7 +44,7 @@ export default function DashboardPanel({ members, scores }: { members: any[], sc
       </div>
 
       {/* Musical Agrupaciones Breakdown */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '1.5rem', marginTop: '2rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1.5rem', marginTop: '2rem' }}>
         {musicalStats.map((agrup: any) => (
           <div key={agrup.name} style={{
             background: '#fff',

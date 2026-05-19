@@ -11,7 +11,7 @@ export default function NotFound() {
       backgroundColor: '#f8fafc',
       fontFamily: 'system-ui, sans-serif'
     }}>
-      <div style={{ textAlign: 'center', padding: '40px', background: 'white', borderRadius: '12px', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', maxWidth: '500px' }}>
+      <div style={{ textAlign: 'center', padding: 'clamp(20px, 5vw, 40px)', background: 'white', borderRadius: '12px', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', maxWidth: '500px' }}>
         <h1 style={{ color: '#0f172a', margin: '0 0 8px 0', fontSize: '3rem', fontWeight: 800 }}>404</h1>
         <h2 style={{ color: '#475569', margin: '0 0 16px 0', fontSize: '1.5rem', fontWeight: 600 }}>Página no encontrada</h2>
         <p style={{ color: '#64748b', lineHeight: '1.6', marginBottom: '24px' }}>

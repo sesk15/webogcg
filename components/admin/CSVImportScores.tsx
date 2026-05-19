@@ -145,7 +145,7 @@ export default function CSVImportScores({ categories, onImportSuccess }: { categ
       </div>
       
       {isGuideExpanded && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginBottom: '2rem', background: 'white', padding: '1.5rem', borderRadius: '12px', border: '1px solid #e1f0ff' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '2rem', marginBottom: '2rem', background: 'white', padding: '1.5rem', borderRadius: '12px', border: '1px solid #e1f0ff' }}>
           <div>
             <h4 style={{ margin: '0 0 1rem', fontSize: '0.9rem', color: '#333', fontWeight: 800 }}>Paso 1: Tu Carpeta de PDFs</h4>
             <p style={{ fontSize: '0.85rem', color: '#666', lineHeight: '1.5' }}>Pon todos tus archivos `.pdf` en una carpeta. Los nombres deben ser simples (ej: `Sinfonia9_Viola.pdf`).</p>
@@ -161,7 +161,7 @@ export default function CSVImportScores({ categories, onImportSuccess }: { categ
         </div>
       )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '2rem', marginTop: isGuideExpanded ? '0' : '1.5rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem', marginBottom: '2rem', marginTop: isGuideExpanded ? '0' : '1.5rem' }}>
         <div style={{ background: 'rgba(255,255,255,0.5)', padding: '1.2rem', borderRadius: '10px', border: '1px dashed #0070f3' }}>
           <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 800, marginBottom: '0.8rem', color: '#1a2a4b' }}>1️⃣ Seleccionar el CSV de Datos</label>
           <input type="file" accept=".csv" onChange={handleCSVSelect} disabled={loading} style={{ fontSize: '0.85rem', width: '100%' }} />
