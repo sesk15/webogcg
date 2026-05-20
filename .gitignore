@@ -9,3 +9,7 @@ package-lock.json
 tsconfig.tsbuildinfo
 *.csv
 sheets
+.opencode/
+.wwebjs_auth/
+plans/
+whatsapp_standalone/
