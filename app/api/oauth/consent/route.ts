@@ -5,6 +5,7 @@ import { cookies } from 'next/headers'
 /**
  * Processes approval or denial of an OAuth authorization.
  * Accepts both authorization_id (snake_case) and authorizationId (camelCase).
+ * Supabase /auth/v1/oauth/authorizations/:id/consent expects { action: 'approve' | 'deny' }.
  * Supabase returns { redirect_uri: "..." } on success.
  * We normalize this to { redirect_to: "..." } for the client.
  */
@@ -45,8 +46,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No authenticated session' }, { status: 401 })
     }
 
-    const grant = action === 'deny' ? 'deny' : 'allow'
-
+    // Supabase expects { action: 'approve' | 'deny' } — not 'grant' or 'allow'
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/oauth/authorizations/${authorizationId}/consent`,
       {
@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
           'Authorization': `Bearer ${session.access_token}`,
           'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
         },
-        body: JSON.stringify({ grant }),
+        body: JSON.stringify({ action }),
       }
     )
 
