@@ -3,14 +3,14 @@ import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 
 /**
- * Procesa la aprobación o denegación de una autorización OAuth.
- * Ahora es simple y estándar: asume que el ID es válido porque el flujo
- * se inició correctamente a través del proxy /api/oauth/authorize.
+ * Processes approval or denial of an OAuth authorization.
+ * Supabase returns { redirect_uri: "..." } on success.
+ * We normalize this to { redirect_to: "..." } for the client.
  */
 export async function POST(request: NextRequest) {
   try {
     const { authorizationId, action = 'approve' } = await request.json()
-    
+
     if (!authorizationId) {
       return NextResponse.json({ error: 'Missing authorizationId' }, { status: 400 })
     }
@@ -36,36 +36,50 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No authenticated session' }, { status: 401 })
     }
 
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-    const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-
-    // Supabase expects 'grant: allow/deny', not 'action: approve/deny'
     const grant = action === 'deny' ? 'deny' : 'allow'
 
     const res = await fetch(
-      `${supabaseUrl}/auth/v1/oauth/authorizations/${authorizationId}/consent`,
+      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/oauth/authorizations/${authorizationId}/consent`,
       {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${session.access_token}`,
-          'apikey': anonKey,
+          'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
         },
         body: JSON.stringify({ grant }),
       }
     )
 
     const data = await res.json()
+    console.log('[OAuth Consent] Supabase raw response:', JSON.stringify(data))
 
     if (!res.ok) {
       console.error('[OAuth Consent] Error from Supabase:', data)
       return NextResponse.json(
-        { error: data.msg || 'Error al procesar el consentimiento', details: data },
+        { error: data.msg || data.message || 'Error processing consent', details: data },
         { status: res.status }
       )
     }
 
-    return NextResponse.json(data)
+    // Supabase may return the redirect URL under different field names.
+    // Normalize everything to redirect_to for the client.
+    const redirectUrl =
+      data.redirect_to ||
+      data.redirect_uri ||
+      data.redirectTo ||
+      data.url ||
+      null
+
+    if (!redirectUrl) {
+      console.error('[OAuth Consent] No redirect URL in Supabase response:', data)
+      return NextResponse.json(
+        { error: 'Supabase did not return a redirect URL', details: data },
+        { status: 502 }
+      )
+    }
+
+    return NextResponse.json({ redirect_to: redirectUrl })
 
   } catch (err: any) {
     console.error('[OAuth Consent] Fatal error:', err)
