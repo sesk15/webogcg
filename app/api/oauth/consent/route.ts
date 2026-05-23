@@ -4,7 +4,10 @@ import { cookies } from 'next/headers'
 
 /**
  * Processes approval or denial of an OAuth authorization.
- * Accepts both authorization_id (snake_case) and authorizationId (camelCase).
+ * Accepts all naming conventions for authorization_id:
+ *   - authorization_id  (snake_case — canonical, from authorize/route.ts)
+ *   - authorizationId   (camelCase)
+ *   - authorizationid   (lowercase — sent by the consent page UI)
  * Supabase /auth/v1/oauth/authorizations/:id/consent expects { action: 'approve' | 'deny' }.
  * Supabase returns { redirect_url: "..." } on success.
  * We normalize this to { redirect_to: "..." } for the client.
@@ -13,8 +16,12 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
 
-    // Accept both naming conventions from the client
-    const authorizationId = body.authorization_id || body.authorizationId
+    // Accept all naming conventions from the client
+    const authorizationId =
+      body.authorization_id ||
+      body.authorizationId ||
+      body.authorizationid
+
     const action = body.action || 'approve'
 
     if (!authorizationId) {
