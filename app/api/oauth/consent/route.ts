@@ -39,7 +39,9 @@ export async function POST(request: NextRequest) {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
     const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
-    // Llamada directa a Supabase para dar el consentimiento
+    // Supabase expects 'grant: allow/deny', not 'action: approve/deny'
+    const grant = action === 'deny' ? 'deny' : 'allow'
+
     const res = await fetch(
       `${supabaseUrl}/auth/v1/oauth/authorizations/${authorizationId}/consent`,
       {
@@ -49,7 +51,7 @@ export async function POST(request: NextRequest) {
           'Authorization': `Bearer ${session.access_token}`,
           'apikey': anonKey,
         },
-        body: JSON.stringify({ action }),
+        body: JSON.stringify({ grant }),
       }
     )
 
