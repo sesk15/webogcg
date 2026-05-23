@@ -32,6 +32,8 @@ export async function GET(request: NextRequest) {
   const authorizationId = searchParams.get('authorization_id')
   if (authorizationId && !searchParams.get('client_id')) {
     const consentUrl = new URL('/sign-in/oauth/consent', request.url)
+    // Use snake_case consistently so the consent page can read it with
+    // searchParams.get('authorization_id')
     consentUrl.searchParams.set('authorization_id', authorizationId)
     console.log('[OAuth Proxy] Received authorization_id from Supabase, redirecting to consent:', authorizationId)
     return NextResponse.redirect(consentUrl)
