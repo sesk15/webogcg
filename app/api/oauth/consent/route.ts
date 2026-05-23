@@ -4,15 +4,24 @@ import { cookies } from 'next/headers'
 
 /**
  * Processes approval or denial of an OAuth authorization.
+ * Accepts both authorization_id (snake_case) and authorizationId (camelCase).
  * Supabase returns { redirect_uri: "..." } on success.
  * We normalize this to { redirect_to: "..." } for the client.
  */
 export async function POST(request: NextRequest) {
   try {
-    const { authorizationId, action = 'approve' } = await request.json()
+    const body = await request.json()
+
+    // Accept both naming conventions from the client
+    const authorizationId = body.authorization_id || body.authorizationId
+    const action = body.action || 'approve'
 
     if (!authorizationId) {
       return NextResponse.json({ error: 'Missing authorizationId' }, { status: 400 })
+    }
+
+    if (action !== 'approve' && action !== 'deny') {
+      return NextResponse.json({ error: "action must be 'approve' or 'deny'" }, { status: 400 })
     }
 
     const cookieStore = await cookies()
