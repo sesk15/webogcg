@@ -3,12 +3,20 @@ import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 
 /**
- * Proxy para obtener detalles de la autorización. 
- * Solo funciona si el ID fue creado bajo la sesión del usuario.
+ * Proxy to fetch authorization details from Supabase.
+ * Accepts both query param naming conventions:
+ *   - authorization_id  (snake_case — canonical)
+ *   - authorizationid   (lowercase — sent by the consent page UI)
+ * Only works if the authorization_id was created under the user's session.
  */
 export async function GET(request: NextRequest) {
-  const authorizationId = request.nextUrl.searchParams.get('authorization_id')
-  
+  const searchParams = request.nextUrl.searchParams
+
+  // Accept both naming conventions from the client
+  const authorizationId =
+    searchParams.get('authorization_id') ||
+    searchParams.get('authorizationid')
+
   if (!authorizationId) {
     return NextResponse.json({ error: 'Missing authorization_id' }, { status: 400 })
   }
