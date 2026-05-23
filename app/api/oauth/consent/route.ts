@@ -6,7 +6,7 @@ import { cookies } from 'next/headers'
  * Processes approval or denial of an OAuth authorization.
  * Accepts both authorization_id (snake_case) and authorizationId (camelCase).
  * Supabase /auth/v1/oauth/authorizations/:id/consent expects { action: 'approve' | 'deny' }.
- * Supabase returns { redirect_uri: "..." } on success.
+ * Supabase returns { redirect_url: "..." } on success.
  * We normalize this to { redirect_to: "..." } for the client.
  */
 export async function POST(request: NextRequest) {
@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No authenticated session' }, { status: 401 })
     }
 
-    // Supabase expects { action: 'approve' | 'deny' } — not 'grant' or 'allow'
+    // Supabase expects { action: 'approve' | 'deny' }
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/oauth/authorizations/${authorizationId}/consent`,
       {
@@ -71,12 +71,13 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Supabase may return the redirect URL under different field names.
-    // Normalize everything to redirect_to for the client.
+    // Supabase returns redirect_url — also handle other variants for robustness
     const redirectUrl =
+      data.redirect_url ||
       data.redirect_to ||
       data.redirect_uri ||
       data.redirectTo ||
+      data.redirectUrl ||
       data.url ||
       null
 
