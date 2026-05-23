@@ -3,20 +3,40 @@ import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 
 /**
- * PROXY CRÍTICO: Punto de entrada OAuth 2.1 para aplicaciones externas.
+ * CRITICAL PROXY: OAuth 2.1 entry point for external applications.
  *
- * POR QUÉ EXISTE ESTE PROXY:
- * Supabase exige que la llamada a /authorize incluya el Bearer token del usuario
- * para que el authorization_id quede vinculado a su sesión. Sin esto, el
- * authorization_id se crea de forma anónima y Supabase devuelve validation_failed
- * en la pantalla de consentimiento, haciendo imposible completar el flujo.
+ * WHY THIS PROXY EXISTS:
+ * Supabase requires the /authorize call to include the user's Bearer token
+ * so the authorization_id gets linked to their session. Without this, the
+ * authorization_id is created anonymously and Supabase returns validation_failed
+ * on the consent screen, making it impossible to complete the flow.
  *
- * CONFIGURACIÓN REQUERIDA EN LA APP SECUNDARIA:
- * El endpoint de autorización OAuth debe apuntar a ESTE proxy:
- *   https://<tu-app>.vercel.app/api/oauth/authorize
- * NO a: https://<ref>.supabase.co/auth/v1/oauth/authorize
+ * FLOW:
+ * 1. External app redirects here with client_id, code_challenge, etc.
+ * 2. If no session: save params and redirect to /sign-in
+ * 3. If session: call Supabase /authorize with Bearer token (server-to-server)
+ * 4. Supabase responds 307 redirecting back here with ?authorization_id=XXX
+ * 5. Detect authorization_id-only request and redirect to consent screen
+ *
+ * REQUIRED CONFIGURATION IN SECONDARY APP:
+ * The OAuth authorization endpoint must point to THIS proxy:
+ *   https://<your-app>.vercel.app/api/oauth/authorize
+ * NOT to: https://<ref>.supabase.co/auth/v1/oauth/authorize
  */
 export async function GET(request: NextRequest) {
+  const searchParams = request.nextUrl.searchParams
+
+  // STEP 5: Supabase redirected back here with only authorization_id.
+  // This means Supabase already processed the authorize request and linked
+  // the authorization_id to the user session. Redirect to consent screen.
+  const authorizationId = searchParams.get('authorization_id')
+  if (authorizationId && !searchParams.get('client_id')) {
+    const consentUrl = new URL('/sign-in/oauth/consent', request.url)
+    consentUrl.searchParams.set('authorization_id', authorizationId)
+    console.log('[OAuth Proxy] Received authorization_id from Supabase, redirecting to consent:', authorizationId)
+    return NextResponse.redirect(consentUrl)
+  }
+
   const cookieStore = await cookies()
   
   const supabase = createServerClient(
@@ -35,22 +55,19 @@ export async function GET(request: NextRequest) {
   )
 
   const { data: { session } } = await supabase.auth.getSession()
-
-  // Recoger todos los query params originales del authorize request
-  const searchParams = request.nextUrl.searchParams
   const oauthParams = searchParams.toString()
 
   if (!session) {
-    // Sin sesión: guardar los params OAuth y redirigir al login.
-    // Tras el login, sign-in redirige de vuelta aquí con los mismos params
-    // y esta vez SÍ habrá sesión para llamar a Supabase con Bearer token.
+    // No session: save OAuth params and redirect to login.
+    // After login, sign-in redirects back here with the same params
+    // and this time there WILL be a session to call Supabase with Bearer token.
     const signInUrl = new URL('/sign-in', request.url)
     signInUrl.searchParams.set('next', `/api/oauth/authorize?${oauthParams}`)
     console.log('[OAuth Proxy] No session — redirecting to sign-in. Params saved:', oauthParams)
     return NextResponse.redirect(signInUrl)
   }
 
-  // Con sesión: construir la URL de Supabase /authorize con los mismos params
+  // With session: build the Supabase /authorize URL with the same params
   const authorizeUrl = new URL(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/oauth/authorize`)
   searchParams.forEach((value, key) => {
     authorizeUrl.searchParams.set(key, value)
@@ -58,8 +75,8 @@ export async function GET(request: NextRequest) {
 
   console.log('[OAuth Proxy] User:', session.user.email, '— Calling Supabase authorize with Bearer token')
 
-  // Llamar a Supabase /authorize server-to-server con el Bearer token.
-  // Supabase vinculará el authorization_id al usuario autenticado.
+  // Call Supabase /authorize server-to-server with Bearer token.
+  // Supabase will link the authorization_id to the authenticated user.
   const response = await fetch(authorizeUrl.toString(), {
     method: 'GET',
     headers: {
@@ -77,21 +94,21 @@ export async function GET(request: NextRequest) {
     const body = await response.text()
     console.error('[OAuth Proxy] No location header. Body:', body)
     return NextResponse.json(
-      { error: 'Supabase no devolvió URL de redirección', status: response.status, body },
+      { error: 'Supabase did not return a redirect URL', status: response.status, body },
       { status: 502 }
     )
   }
 
-  // Si Supabase nos redirige al sign-in, no aceptó el Bearer token
+  // If Supabase redirects to sign-in, it did not accept the Bearer token
   if (location.includes('/sign-in') || location.includes('sign_in')) {
-    console.error('[OAuth Proxy] Supabase rechazó el Bearer token y redirigió a sign-in')
+    console.error('[OAuth Proxy] Supabase rejected the Bearer token and redirected to sign-in')
     return NextResponse.json(
-      { error: 'Supabase no aceptó el Bearer token en /authorize. Verifica la configuración del cliente OAuth.' },
+      { error: 'Supabase did not accept the Bearer token in /authorize. Check the OAuth client configuration.' },
       { status: 502 }
     )
   }
 
-  // Éxito: redirigir al usuario a donde Supabase diga (normalmente la pantalla de consentimiento)
+  // Success: redirect the user to where Supabase says (usually back here with authorization_id)
   console.log('[OAuth Proxy] Redirecting to:', location)
   return NextResponse.redirect(location)
 }
