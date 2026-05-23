@@ -69,7 +69,7 @@ function ConsentContent() {
       const res = await fetch('/api/oauth/consent', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ authorizationId, action }),
+        body: JSON.stringify({ authorization_id: authorizationId, action }),
       })
 
       const data = await res.json()
@@ -79,11 +79,13 @@ function ConsentContent() {
         throw new Error(data.error || `Server error (${res.status})`)
       }
 
-      if (!data.redirect_to) {
+      // Handle both snake_case and camelCase variants from the server
+      const redirectUrl = data.redirect_to || data.redirectto || data.redirectUrl
+      if (!redirectUrl) {
         throw new Error('Server did not return a redirect URL.')
       }
 
-      window.location.assign(data.redirect_to)
+      window.location.assign(redirectUrl)
     } catch (err: any) {
       console.error('[Consent page] Action failed:', err)
       setError(err.message)
